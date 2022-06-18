@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>21 Savage Fan Site</title>
+  <title>audivvy</title>
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
   <link rel="stylesheet" href="style.css">
@@ -38,37 +38,7 @@
 
         </div>
       </div>
-      <div class="col-sm-6">
-        <h3>folders</h3>
-        <ul class="folders">
-          <% for(var i=0; i<folders.length; i++) {%>
-            <li class="message">
-              <a href="/release/<%= folders[i]._id %>">
-                <h4>
-                  <%= folders[i].title %>
-                </h4>
-                <audio src="<%= folders[i].folder %>"></audio>
-              </a>
-            </li>
-            <% } %>
-        </ul>
-
-        <h2>Make A Post</h2>
-        <% if (user.local.email) { %>
-          <form action="/makePost" enctype="multipart/form-data" method="POST">
-            <input type="text" name="title" placeholder="title">
-            <!-- <input type="file" id="filepicker" name="fileList" webkitdirectory multiple />
-            <ul id="listing"></ul> -->
-
-
-            <button type="submit">Submit</button>
-          </form>
-      </div>
-      <% } %>
-        <div class="picker"><input type="file" id="picker" name="fileList" webkitdirectory multiple></div>
-
-        <ul id="listing"></ul>
-    </div>
+     
 
     <script src="main.js"></script>
 

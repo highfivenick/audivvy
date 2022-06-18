@@ -11,3 +11,7 @@ img{
 .jumbotron{
   background-color: black;
 }
+
+.submitBtn{
+  background: gray;
+}

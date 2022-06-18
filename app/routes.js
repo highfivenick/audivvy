@@ -1,16 +1,26 @@
 module.exports = function(app, passport, db, multer, ObjectId) {
 
   // Image Upload Code =========================================================================
- var storage = multer.diskStorage({
-   destination: (req, file, cb) => {
-     console.log('dest', file)
-     cb(null, `public/folders/${file.title}`)
-   },
-   filename: (req, file, cb) => {
-     cb(null, file.originalname)
-   }
- });
- var upload = multer({storage: storage}); 
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    console.log('dest', file)
+    cb(null, `public/folders/`)
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  }
+});
+var upload = multer({
+  storage: storage,
+  // fileFilter: (req, file, cb) => {
+  //   if (file.mimetype == "audio/*" ) {
+  //     cb(null, true);
+  //   } else {
+  //     cb(null, false);
+  //     return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+  //   }
+  // }
+});
  
  // normal routes ===============================================================
  
@@ -39,14 +49,19 @@ module.exports = function(app, passport, db, multer, ObjectId) {
   //      })
   //  });
    //post page
-   app.get('/release/:zebra', isLoggedIn, function(req, res) {
+   app.get('/folder/:zebra', isLoggedIn, function(req, res) {
      let postId = ObjectId(req.params.zebra)
-     console.log(postId)
-     db.collection('folders').find({_id: postId}).toArray((err, result) => {
+     
+     db.collection('users').find().toArray((err1, user) => {
+      console.log(user, 'user?????', req.user.local.email)
+      db.collection('folders').find({_id: postId}).toArray((err, result) => {
+       console.log(result, 'testing', result[0].title)
        if (err) return console.log(err)
-       res.render('release.ejs', {
-         folders: result
+       res.render('folder.ejs', {
+         folders: result[0],
+         user: req.user
        })
+      })
      })
  });
  //profile page
@@ -69,7 +84,11 @@ module.exports = function(app, passport, db, multer, ObjectId) {
  app.post('/makePost', isLoggedIn, upload.array('fileList'), (req, res) => {
    let user = req.user._id
    console.log('uploaded file', req.files)
-   db.collection('folders').save({title: req.body.title, folder: 'folders/uploads/' + req.files.filename, postedBy: user}, (err, result) => {
+   db.collection('folders').save({title: req.body.title, 
+    folderData: {
+      folderPath: 'folders/uploads/' + req.files.filename,
+      content: req.files,
+    }, postedBy: user}, (err, result) => {
      if (err) return console.log(err)
      console.log('saved to database')
      res.redirect('/projects')
@@ -135,7 +154,7 @@ module.exports = function(app, passport, db, multer, ObjectId) {
  
          // process the signup form
          app.post('/signup', passport.authenticate('local-signup', {
-             successRedirect : '/profile', // redirect to the secure profile section
+             successRedirect : '/projects', // redirect to the secure profile section
              failureRedirect : '/signup', // redirect back to the signup page if there is an error
              failureFlash : true // allow flash folders
          }));
