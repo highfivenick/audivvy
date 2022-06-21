@@ -94,19 +94,24 @@ Array.from(deleteFolder).forEach(function(element) {
 
 Array.from(deleteFile).forEach(function(element) {
   element.addEventListener('click', function(){
-    console.log(this.parentNode.childNodes[3].childNodes[1].innerText)
+    let index = this.parentNode.childNodes[3].childNodes[3].innerText
+    let folderName = document.querySelector('.folderTitle').innerText
+    console.log(folderName)
     let fileName = this.parentNode.childNodes[3].childNodes[1].innerText
     fetch('deleteFile', {
-      method: 'delete',
+      method: 'put',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        'fileName': fileName
+        'fileName': fileName,
+        'fileIndex': index,
+        'folderName': folderName
       })
-    }).then(function (response) {
-      window.location.reload()
     })
+    // .then(function (response) {
+    //   window.location.reload()
+    // })
   });
 });
 

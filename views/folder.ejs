@@ -131,7 +131,7 @@
 				<!-- title -->
 				<div class="col-12">
 					<div class="main__title main__title--page">
-						<h1><%= folders.title %></h1> <button class="deleteFolder" class="white" > delete folder </button>
+						<h1 class="folderTitle"><%= folders.title %></h1> <button class="deleteFolder" class="white" > delete folder </button>
 					</div>
 				</div>
 				<!-- end title -->
@@ -159,6 +159,7 @@
 										</a>
 										<div class="single-item__title">
 											<h4><a href="#"><%= folders.folderData.content[i].originalname%></a></h4>
+											<span> <%= i %></span>
 											<span><a href="artist.html"><%= user.local.email %></a></span>
 										</div>
 										<!-- <a href="#" class="single-item__add">
@@ -181,7 +182,7 @@
 				<!-- <% if (user.local.email) { %> -->
 					<form action="/makePost" enctype="multipart/form-data" method="POST">
 						
-						<div class="picker"><input type="file" id="picker" name="fileList" webkitdirectory multiple required>
+						<div class="picker red"><input type="file" id="picker" name="fileList" webkitdirectory multiple required>
 						</div>
 
 						<ul id="listing"></ul> <button class="submitBtn" type="submit">Submit</button>
@@ -194,7 +195,7 @@
 						
 						<input type="email" name="shareEmail" placeholder="enter user's email" required> 
 
-						<ul id="listing"></ul> <button class="submitBtn" type="submit">Submit</button>
+						<ul id="listing"></ul> <button class="submitBtn" type="submit">Share</button>
 					</form>
 			</div>
 			<% } %>

@@ -244,22 +244,7 @@
 				<!-- end title -->
 			</div>
 
-			<div class="col-sm-6">
-				
-				
-
-				<h2>Add a folder:</h2>
-				<% if (user.local.email) { %>
-					<form action="/makePost" enctype="multipart/form-data" method="POST">
-						<input type="text" name="title" placeholder="project title" required> 
-						<div class="picker"><input type="file" id="picker" name="fileList" webkitdirectory multiple required>
-						</div>
-
-						<ul id="listing"></ul> <button class="submitBtn" type="submit">Submit</button>
-					</form>
-			</div>
-			<% } %>
-
+			
 			<!-- title -->
 			<div class="col-12">
 				<div class="main__title main__title--page">
