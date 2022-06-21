@@ -15,3 +15,55 @@ img{
 .submitBtn{
   background: gray;
 }
+
+.white{
+  color: white;
+}
+
+.deleteFolder{
+  color: white;
+  border: 1px solid red;
+  background: red;
+}
+
+
+.messages{
+  width: 80%;
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+
+}
+
+.messages li {
+ 
+  margin: 10px;
+  border-bottom: 1px solid white;
+
+}
+
+.fa-folder-music{
+  font-size: 2rem;
+  color: white;
+}
+
+.folderInput{
+  margin-top: 56px;  
+}
+
+.inputSpacer{
+  margin-bottom: 14px;
+}
+
+.audioInputs, .submitBtn, input[type=file]::-webkit-file-upload-button{
+  background-color: black;
+  color: white;
+  border: 1px solid white;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.red{
+color: red;
+}

@@ -39,7 +39,16 @@ var upload = multer({
            })
          })
      });
-     //main page
+     app.get('/shared', isLoggedIn, function(req, res) {
+         db.collection('folders').find({postedBy: req.user._id}).toArray((err, result) => {
+           if (err) return console.log(err)
+           res.render('projects.ejs', {
+             user : req.user,
+             folders: result
+           })
+         })
+     });
+  //main page
   //    app.get('/projects', function(req, res) {
   //      db.collection('projects').find().toArray((err, result) => {
   //        if (err) return console.log(err)
@@ -49,8 +58,8 @@ var upload = multer({
   //      })
   //  });
    //post page
-   app.get('/folder/:zebra', isLoggedIn, function(req, res) {
-     let postId = ObjectId(req.params.zebra)
+   app.get('/folder/:folderID', isLoggedIn, function(req, res) {
+     let postId = ObjectId(req.params.folderID)
      
      db.collection('users').find().toArray((err1, user) => {
       console.log(user, 'user?????', req.user.local.email)
@@ -65,15 +74,15 @@ var upload = multer({
      })
  });
  //profile page
- app.get('/page/:id', isLoggedIn, function(req, res) {
-   let postId = ObjectId(req.params.id)
-   db.collection('folders').find({postedBy: postId}).toArray((err, result) => {
-     if (err) return console.log(err)
-     res.render('page.ejs', {
-       folders: result
-     })
-   })
- });
+//  app.get('/page/:id', isLoggedIn, function(req, res) {
+//    let postId = ObjectId(req.params.id)
+//    db.collection('folders').find({postedBy: postId}).toArray((err, result) => {
+//      if (err) return console.log(err)
+//      res.render('page.ejs', {
+//        folders: result
+//      })
+//    })
+//  });
  
      // LOGOUT ==============================
      app.get('/logout', function(req, res) {
@@ -88,7 +97,7 @@ var upload = multer({
     folderData: {
       folderPath: 'folders/uploads/' + req.files.filename,
       content: req.files,
-    }, postedBy: user}, (err, result) => {
+    }, postedBy: user, shared: []}, (err, result) => {
      if (err) return console.log(err)
      console.log('saved to database')
      res.redirect('/projects')
@@ -108,7 +117,7 @@ var upload = multer({
  
      app.put('/folders', (req, res) => {
        db.collection('folders')
-       .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+       .findOneAndUpdate({id: req.body._id}, {
          $set: {
            thumbUp:req.body.thumbUp + 1
          }
@@ -120,14 +129,84 @@ var upload = multer({
          res.send(result)
        })
      })
+    //  app.put('/folders', (req, res) => {
+    //    db.collection('folders')
+    //    .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+    //      $set: {
+    //        thumbUp:req.body.thumbUp + 1
+    //      }
+    //    }, {
+    //      sort: {_id: -1},
+    //      upsert: true
+    //    }, (err, result) => {
+    //      if (err) return res.send(err)
+    //      res.send(result)
+    //    })
+    //  })
  
-     app.delete('/folders', (req, res) => {
-       db.collection('folders').findOneAndDelete({name: req.body.name, msg: req.body.msg}, (err, result) => {
+     app.delete('/folder/deleteFolder', (req, res) => {
+       console.log(req.body, 'deleting folder')
+       db.collection('folders').findOneAndDelete({title: req.body.title}, (err, result) => {
          if (err) return res.send(500, err)
-         res.send('Message deleted!')
+         res.send('Folder deleted!')
+       })
+     })
+     app.delete('/folder/deleteFile', (req, res) => {
+       console.log(req.body, 'deleting file')
+       db.collection('folders').findOneAndDelete({folderData:{content: {originalname: req.body.fileName}}}, (err, result) => {
+         if (err) return res.send(500, err)
+         console.log(err)
+
+         res.send('Folder deleted!')
        })
      })
  
+// Notes Routes
+     app.post('/notes', (req, res) => {
+      db.collection('notes').insertOne({name: req.body.name, msg: req.body.msg}, (err, result) => {
+        if (err) return console.log(err)
+        console.log('saved to database')
+        res.redirect('/profile')
+      })
+    })
+
+    // app.put('/notes', (req, res) => {
+    //   db.collection('notes ')
+    //   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+    //     $set: {
+    //       thumbUp:req.body.thumbUp + 1
+    //     }
+    //   }, {
+    //     sort: {_id: -1},
+    //     upsert: true
+    //   }, (err, result) => {
+    //     if (err) return res.send(err)
+    //     res.send(result)
+    //   })
+    // })
+    // app.put('/notesDown', (req, res) => {
+    //   db.collection('messages')
+    //   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+    //     $set: {
+    //       thumbUp:req.body.thumbUp - 1
+    //     }
+    //   }, {
+    //     sort: {_id: -1},
+    //     upsert: true
+    //   }, (err, result) => {
+    //     if (err) return res.send(err)
+    //     res.send(result)
+    //   })
+    // })
+
+    app.delete('/notes', (req, res) => {
+      db.collection('notes').findOneAndDelete({name: req.body.name, msg: req.body.msg}, (err, result) => {
+        if (err) return res.send(500, err)
+        res.send('Note deleted!')
+      })
+    })
+
+
  // =============================================================================
  // AUTHENTICATE (FIRST LOGIN) ==================================================
  // =============================================================================
