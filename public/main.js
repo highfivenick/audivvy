@@ -109,9 +109,9 @@ Array.from(deleteFile).forEach(function(element) {
         'folderName': folderName
       })
     })
-    // .then(function (response) {
-    //   window.location.reload()
-    // })
+   
+      window.location.reload(true)
+
   });
 });
 

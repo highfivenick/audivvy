@@ -67,13 +67,15 @@ module.exports = function (app, passport, db, multer, ObjectId) {
   app.get('/folder/:folderID', isLoggedIn, function (req, res) {
     let postId = ObjectId(req.params.folderID)
 
-    db.collection('users').find().toArray((err1, user) => {
+    console.log(req.params, 'paarams')
       db.collection('folders').find({ _id: postId }).toArray((err, result) => {
-
+        db.collection('notes').find({id: postId}).toArray((err1, comments) => {
+console.log(comments,'comments for folder')
         if (err) return console.log(err)
         res.render('folder.ejs', {
           folders: result[0],
-          user: req.user
+          comments: comments,
+          user:req.user
         })
       })
     })
@@ -161,34 +163,28 @@ module.exports = function (app, passport, db, multer, ObjectId) {
     // interests.splice(2, 1)
     // db.people.update({ "name": "dannie" }, { "$set": { "interests": interests } });
 
-    let removing = db.collection('folders').findOne({title: req.body.folderName},
-      (err,result)=>{
+    let removing = db.collection('folders').findOne({ title: req.body.folderName },
+      (err, result) => {
         // let fileSelected = result.folderData.content[req.body.fileIndex]
         let folder = result.folderData.content
-        let newFolderWithoutFile = folder.filter((file)=> folder.indexOf(file) !== Number(req.body.fileIndex))
+        let newFolderWithoutFile = folder.filter((file) => folder.indexOf(file) !== Number(req.body.fileIndex))
         console.log(newFolderWithoutFile, 'testing')
+        db.collection('folders').updateOne({ 'title': req.body.folderName }, {
+          $set: { 'folderData.content': newFolderWithoutFile }
+        }),
+          (err, newFolder) => {
+            console.log(newFolder)
+            res.send(newFolder)
+          }
       })
-      
-  
-    // db.collection('folders').findOneAndUpdate(
-    //   {
-    //     'folderData.content': {}
 
-    //   }, (err, result) => {
-    //     if (err) return res.send(500, err)
-    //     console.log(err)
-    //     console.log('this is result', result)
-    //     res.send('Folder deleted!')
-    //   })
   })
 
   // Notes Routes
   app.post('/notes', (req, res) => {
-    db.collection('notes').insertOne({ name: req.body.name, msg: req.body.msg }, (err, result) => {
-      if (err) return console.log(err)
-      console.log('saved to database')
-      res.redirect('/profile')
-    })
+    console.log(req.body)
+    db.collection('notes').insertOne({ text: req.body.text, commentor: req.user.local.email, time: new Date().toLocaleTimeString(), id: ObjectId(req.body.folderTitle)})
+    res.redirect('back');
   })
 
   // app.put('/notes', (req, res) => {
