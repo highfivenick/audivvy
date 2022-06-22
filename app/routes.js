@@ -43,44 +43,47 @@ module.exports = function (app, passport, db, multer, ObjectId) {
   });
 
   // Shared Projects SECTION =========================
-  //  app.get('/shared', isLoggedIn, function(req, res) {
-  //      db.collection('folders').find({postedBy: req.user._id}).toArray((err, result) => {
-  //        if (err) return console.log(err)
-  //        res.render('projects.ejs', {
-  //          user : req.user,
-  //          folders: result
-  //        })
-  //      })
-  //  });
-  //main page
-  //    app.get('/projects', function(req, res) {
-  //      db.collection('projects').find().toArray((err, result) => {
-  //        if (err) return console.log(err)
-  //        res.render('projects.ejs', {
-  //          folders: result
-  //        })
-  //      })
-  //  });
-  //post page
+  app.get('/shared', isLoggedIn, function (req, res) {
+    db.collection('shared').find({ shareWith: req.user.local.email }).toArray((err, sharedWithMe) => {
+      console.log(sharedWithMe, 'is there a post id?')
+      if (err) return console.log(err)
+      res.render('shared.ejs', {
+        user: req.user,
+        sharedWithMe
+      })
+    })
+  });
+
+
 
 
   app.get('/folder/:folderID', isLoggedIn, function (req, res) {
     let postId = ObjectId(req.params.folderID)
+    db.collection('folders').find({ _id: postId }).toArray((err, result) => {
+      db.collection('notes').find({ id: postId }).toArray((err1, comments) => {
+        db.collection('users').find().toArray((err3, userList) => {
+          db.collection('addedSongs').find({ folder: postId.toString() }).toArray((err3, newFile) => {
 
-    console.log(req.params, 'paarams')
-      db.collection('folders').find({ _id: postId }).toArray((err, result) => {
-        db.collection('notes').find({id: postId}).toArray((err1, comments) => {
-console.log(comments,'comments for folder')
-        if (err) return console.log(err)
-        res.render('folder.ejs', {
-          folders: result[0],
-          comments: comments,
-          user:req.user
+            let newFileContent = []
+            newFile.forEach((file)=>{
+              newFileContent.push(file.content)
+            })
+            let correctUserList = userList.filter((user) => user.local.email !== req.user.local.email)
+            if (err) return console.log(err)
+            res.render('folder.ejs', {
+              folders: result[0],
+              comments: comments,
+              user: req.user,
+              correctUserList,
+              postId,
+              newFileContent
+            })
+          })
         })
       })
     })
   });
-  //profile page
+
   //  app.get('/page/:id', isLoggedIn, function(req, res) {
   //    let postId = ObjectId(req.params.id)
   //    db.collection('folders').find({postedBy: postId}).toArray((err, result) => {
@@ -91,7 +94,12 @@ console.log(comments,'comments for folder')
   //    })
   //  });
 
+
+
+
+
   // LOGOUT ==============================
+
   app.get('/logout', function (req, res) {
     req.logout();
     res.redirect('/');
@@ -109,6 +117,43 @@ console.log(comments,'comments for folder')
       if (err) return console.log(err)
       console.log('saved to database')
       res.redirect('/projects')
+    })
+  })
+
+  app.post('/add', isLoggedIn, upload.single('file'), (req, res) => {
+    console.log('hi', req.file, 'files?')
+    console.log(req.body)
+    db.collection('addedSongs').insertOne({
+      folder: req.body.postId,
+      folderPath: 'folders/uploads/' + req.file.filename,
+      content: req.file
+    })
+    res.redirect('back')
+    // db.collection('folders').save({
+    //   title: req.body.title,
+    //   folderData: {
+    //     folderPath: 'folders/uploads/' + req.files.filename,
+    //     content: req.files,
+    //   }, postedBy: user, shared: []
+    // }, (err, result) => {
+    //   if (err) return console.log(err)
+    //   console.log('saved to database')
+    //   res.redirect('/projects')
+    // })
+  })
+
+
+  app.post('/shared', isLoggedIn, (req, res) => {
+    console.log(req.body, 'trying to share')
+    db.collection('shared').insertOne({
+      postId: req.body.postId,
+      shareWith: req.body.shareWith,
+      sharer: req.user.local.email,
+      title: req.body.title
+    }, (err, result) => {
+      if (err) return console.log(err)
+      console.log('saved to database')
+      res.redirect('back')
     })
   })
 
@@ -137,20 +182,23 @@ console.log(comments,'comments for folder')
   //      res.send(result)
   //    })
   //  })
-  //  app.put('/folders', (req, res) => {
-  //    db.collection('folders')
-  //    .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
-  //      $set: {
-  //        thumbUp:req.body.thumbUp + 1
-  //      }
-  //    }, {
-  //      sort: {_id: -1},
-  //      upsert: true
-  //    }, (err, result) => {
-  //      if (err) return res.send(err)
-  //      res.send(result)
-  //    })
-  //  })
+
+  app.put('/folder/addFile', isLoggedIn, (req, res) => {
+    console.log(req.body, 'adding file')
+    console.log(req.file)
+    db.collection('folders')
+      .findOneAndUpdate({ name: req.body.title }, {
+        $push: {
+          'folderData.content': req.body.newFile
+        }
+      }, {
+        upsert: true
+      }, (err, result) => {
+        console.log(result.folderData, 'result')
+        if (err) return res.send(err)
+        res.send(result)
+      })
+  })
 
   app.delete('/folder/deleteFolder', (req, res) => {
     db.collection('folders').findOneAndDelete({ title: req.body.title }, (err, result) => {
@@ -158,14 +206,18 @@ console.log(comments,'comments for folder')
       res.send('Folder deleted!')
     })
   })
-  app.put('/folder/deleteFile', (req, res) => {
-    // var interests = db.people.findOne({ "name": "dannie" }).interests;
-    // interests.splice(2, 1)
-    // db.people.update({ "name": "dannie" }, { "$set": { "interests": interests } });
 
+  app.delete('/folder/deleteNewFile', (req, res) => {
+    console.log(req.body,'deleting this')
+    db.collection('addedSongs').findOneAndDelete({ folder: req.body.postId, 'content.originalname': req.body.fileName }, (err, result) => {
+      if (err) return res.send(500, err)
+      res.send('Folder deleted!')
+    })
+  })
+
+  app.put('/folder/deleteFile', (req, res) => {
     let removing = db.collection('folders').findOne({ title: req.body.folderName },
       (err, result) => {
-        // let fileSelected = result.folderData.content[req.body.fileIndex]
         let folder = result.folderData.content
         let newFolderWithoutFile = folder.filter((file) => folder.indexOf(file) !== Number(req.body.fileIndex))
         console.log(newFolderWithoutFile, 'testing')
@@ -177,50 +229,25 @@ console.log(comments,'comments for folder')
             res.send(newFolder)
           }
       })
-
   })
 
   // Notes Routes
   app.post('/notes', (req, res) => {
     console.log(req.body)
-    db.collection('notes').insertOne({ text: req.body.text, commentor: req.user.local.email, time: new Date().toLocaleTimeString(), id: ObjectId(req.body.folderTitle)})
+    db.collection('notes').insertOne({ text: req.body.text, commentor: req.user.local.email, time: new Date().toLocaleTimeString(), id: ObjectId(req.body.folderTitle) })
     res.redirect('back');
   })
 
-  // app.put('/notes', (req, res) => {
-  //   db.collection('notes ')
-  //   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
-  //     $set: {
-  //       thumbUp:req.body.thumbUp + 1
-  //     }
-  //   }, {
-  //     sort: {_id: -1},
-  //     upsert: true
-  //   }, (err, result) => {
-  //     if (err) return res.send(err)
-  //     res.send(result)
-  //   })
-  // })
-  // app.put('/notesDown', (req, res) => {
-  //   db.collection('messages')
-  //   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
-  //     $set: {
-  //       thumbUp:req.body.thumbUp - 1
-  //     }
-  //   }, {
-  //     sort: {_id: -1},
-  //     upsert: true
-  //   }, (err, result) => {
-  //     if (err) return res.send(err)
-  //     res.send(result)
-  //   })
-  // })
 
-  app.delete('/notes', (req, res) => {
-    db.collection('notes').findOneAndDelete({ name: req.body.name, msg: req.body.msg }, (err, result) => {
-      if (err) return res.send(500, err)
-      res.send('Note deleted!')
-    })
+
+
+  app.delete('/folder/deleteComment', (req, res) => {
+    console.log(req.body, 'delete this')
+    db.collection('notes').findOneAndDelete({ text: req.body.text, commentor: req.body.commentor },
+      (err, result) => {
+        res.send(result)
+      })
+
   })
 
 

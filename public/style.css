@@ -20,7 +20,7 @@ img{
   color: white;
 }
 
-.deleteFolder{
+.deleteFolder, .deleteComment{
   color: red;
   border: 1px solid red;
   background: black;
@@ -76,4 +76,12 @@ color: red;
 
 #listing{
   margin-bottom: 10px;
+}
+
+.deleteComment{
+  font-size: .7rem;
+}
+
+select{
+  width: 80px;
 }
