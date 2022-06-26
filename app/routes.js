@@ -14,14 +14,6 @@ module.exports = function (app, passport, db, multer, ObjectId) {
   });
   var upload = multer({
     storage: storage,
-    // fileFilter: (req, file, cb) => {
-    //   if (file.mimetype == "audio/*" ) {
-    //     cb(null, true);
-    //   } else {
-    //     cb(null, false);
-    //     return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
-    //   }
-    // }
   });
 
   // normal routes ===============================================================
@@ -83,17 +75,6 @@ module.exports = function (app, passport, db, multer, ObjectId) {
       })
     })
   });
-
-  //  app.get('/page/:id', isLoggedIn, function(req, res) {
-  //    let postId = ObjectId(req.params.id)
-  //    db.collection('folders').find({postedBy: postId}).toArray((err, result) => {
-  //      if (err) return console.log(err)
-  //      res.render('page.ejs', {
-  //        folders: result
-  //      })
-  //    })
-  //  });
-
 
 
 
@@ -157,31 +138,6 @@ module.exports = function (app, passport, db, multer, ObjectId) {
     })
   })
 
-
-  // message board routes ===============================================================
-
-  //  app.post('/folders', (req, res) => {
-  //    db.collection('folders').save({name: req.body.name, msg: req.body.msg, thumbUp: 0, thumbDown:0}, (err, result) => {
-  //      if (err) return console.log(err)
-  //      console.log('saved to database')
-  //      res.redirect('/projects')
-  //    })
-  //  })
-
-  //  app.put('/folders', (req, res) => {
-  //    db.collection('folders')
-  //    .findOneAndUpdate({id: req.body._id}, {
-  //      $set: {
-  //        thumbUp:req.body.thumbUp + 1
-  //      }
-  //    }, {
-  //      sort: {_id: -1},
-  //      upsert: true
-  //    }, (err, result) => {
-  //      if (err) return res.send(err)
-  //      res.send(result)
-  //    })
-  //  })
 
   app.put('/folder/addFile', isLoggedIn, (req, res) => {
     console.log(req.body, 'adding file')

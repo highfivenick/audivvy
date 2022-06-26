@@ -136,7 +136,9 @@ Array.from(deleteFile).forEach(function (element) {
       })
     })
 
-    window.location.reload(true)
+    setTimeout(function(){
+      window.location.reload();
+   }, 1000);
 
   });
 });

@@ -37,7 +37,10 @@
 	<div class="sidebar">
 		<!-- sidebar logo -->
 		<div class="sidebar__logo">
-			<img src="/img/audivvy-logo.png" alt="">
+			<a href="/">
+				<img src="/img/audivvy-logo.png" alt="">
+
+			</a>
 		</div>
 		<!-- end sidebar logo -->
 
@@ -167,7 +170,7 @@
 												</path>
 											</svg></button>
 									           
-										<span class="single-item__time">2:58</span>
+										<span class="single-item__time"></span>
 									</li>
 									<%}%>
 
@@ -209,7 +212,7 @@
 													</path>
 												</svg></button>
 												   
-											<span class="single-item__time">2:58</span>
+											<span class="single-item__time"></span>
 										</li>
 										<%}%>
 							</ul>
@@ -218,47 +221,47 @@
 				</div>
 				<h1 style="display:none" class="postId"><%=postId %></h1>
 
-				<h2 class="white">Add a file(s):</h2>
-			<form action="/add" method="post" enctype="multipart/form-data" >
-					<div class="picker red">
-						<ul id="listStuff"></ul> 
-						<input type="file" id="filePicker" name="file" multiple required>
-						<select style="display:none" name="postId">
-							<option value="<%= postId %>">
-							</option>
-					</div>					
+				<h2 class="white sharePrompt">Add a file(s):</h2>
+				<form action="/add" method="post" enctype="multipart/form-data" >
+				<div class="picker red">
+					<ul id="listStuff"></ul> 
+					<input type="file" id="filePicker" name="file" multiple required>
+					<select style="display:none" name="postId">
+						<option value="<%= postId %>">
+						</option>
 					</select>
-					<button class="uploadFile submitBtn" type="submit">Submit</button>
+				</div>					
+				<button class="uploadFile submitBtn" type="submit">Submit</button>
 				</form>
 
 
-				<h2 class="white">Share Folder:</h2>
+				<h2 class="white sharePrompt">Share Folder:</h2>
 				<% if (user.local.email) { %>
-					<form action="/shared" method="POST">
-						<label class="white"> choose user</label>
-						<select name="shareWith">
-
-							<% for(let i=0; i < correctUserList.length; i++){ %>
-								<option value="<%= correctUserList[i].local.email %>">
-									<%= correctUserList[i].local.email %>
-								</option>
-								<% } %>
-						</select>
-
-						<select style="display:none" name="postId">
-							<option value="<%= postId %>">
-
+				<form action="/shared" method="POST">
+					<label class="white sharePrompt" style="display:none" > choose user</label>
+					<select class="userSelector" name="shareWith" required>
+						<option value="" disabled selected hidden>Choose a user</option>
+						<% for(let i=0; i < correctUserList.length; i++){ %>
+							<option value="<%= correctUserList[i].local.email %>">
+								<%= correctUserList[i].local.email %>
 							</option>
-						</select>
+							<% } %>
+					</select>
 
-						<select style="display:none" name="title">
-							<option value="<%= folders.title %>">
+					<select style="display:none" name="postId">
+						<option value="<%= postId %>">
 
-							</option>
-						</select>
+						</option>
+					</select>
 
-						<button class="submitBtn" type="submit">Share</button>
-					</form>
+					<select style="display:none" name="title">
+						<option value="<%= folders.title %>">
+
+						</option>
+					</select>
+
+					<button class="submitBtn" type="submit">Share</button>
+				</form>
 			</div>
 			<% } %>
 
@@ -331,7 +334,9 @@
 			<div class="row">
 				<div class="col-12 col-sm-8 col-md-6 col-lg-6 col-xl-4 order-4 order-md-1 order-lg-4 order-xl-1">
 					<div class="footer__logo">
-						<img src="img/audivvy-logo.png" alt="">
+						<a href="/">
+							<img src="/img/audivvy-logo.png" alt="">
+						</a>
 					</div>
 					<p class="footer__tagline">Collaborate and Organize<br> Online with Audivvy.</p>
 					<div class="footer__links">
